@@ -1,10 +1,135 @@
 <!DOCTYPE html>
 <html>
-<head lang="en">
-    <meta charset="UTF-8">
-    <title></title>
+<meta charset="utf-8">
+<head>
+    <title>Змейка</title>
 </head>
 <body>
+<canvas id="canvas"></canvas>
+<div>
+    <p id="p">Текст</p>
+    <p id="p2">Текст</p>
+</div>
+<script>
+    //игровое поле
+    var canvas = document.getElementById("canvas");
+    var ctx = canvas.getContext("2d");
+    canvas.width = 402;
+    canvas.height = 402;
+    ctx.strokeRect(1, 1, 400, 400);
 
+
+    //змейка
+    var snake = {};
+    var rabbit = {};
+
+    //начальное положение
+    function start(){
+        snake.direction = '';
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.strokeRect(1, 1, 400, 400);
+        snake.body = [
+            [50,280],
+            [50,290],
+            [50,300]
+        ];
+        drowShape(snake);
+        respRabbit();
+    }
+
+
+    //отрисовка
+    function drowShape(shape){
+        ctx.fillStyle = "green";
+        for(var i = 0; shape.body.length > i; i++){
+            ctx.fillRect(shape.body[i][0], shape.body[i][1], 9, 9 );
+        }
+    }
+
+    //движение
+    document.body.onkeydown = function (evt){
+        if(evt.keyCode != snake.direction){
+            snake.direction = evt.keyCode;
+            moveSnake();
+        }
+    };
+
+    function moveSnake(evt){
+
+        switch (snake.direction){
+            case 38 :
+                snake.head = [snake.body[0][0],
+                            snake.body[0][1] - 10];
+                break;
+            case 40 :
+                snake.head = [snake.body[0][0],
+                            snake.body[0][1] + 10];
+                break;
+            case 37 :
+                snake.head = [snake.body[0][0] - 10,
+                    snake.body[0][1]];
+                break;
+            case 39 :
+                snake.head = [snake.body[0][0] + 10,
+                    snake.body[0][1]];
+                break;
+            default :
+                snake.head = [snake.body[0][0],
+                            snake.body[0][1] - 10];
+        }
+
+        if (!snake.timer)
+            snake.timer = setInterval("moveSnake()", 100);
+
+        if (snake.head)
+            snake.body.unshift(snake.head);
+
+        var last = snake.body.pop();
+        ctx.clearRect(last[0], last[1], 9, 9);
+        drowShape(snake);
+
+        if (eatSelf()){
+            clearInterval(snake.timer);
+            snake.timer = null;
+            setTimeout('start()', 300);
+        }
+
+        if ( (snake.head[0] == rabbit.body[0]) && (snake.head[1] == rabbit.body[1]) ){
+            eatRabbit();
+        }
+    }
+
+    //заяц
+
+    function respRabbit(){
+        var rabbitX = (Math.round(Math.random()*29 + 10))*10;
+        var rabbitY = (Math.round(Math.random()*29 + 10))*10;
+        rabbit.body = [rabbitX, rabbitY];
+        ctx.fillRect(rabbit.body[0], rabbit.body[1], 9, 9 );
+    }
+
+    //поедание зайца
+
+    function eatRabbit(){
+        snake.body.push(rabbit.body);
+        respRabbit();
+    }
+
+    function eatSelf(){
+        if (snake.head[0] > 390 || snake.head[1] > 390 || snake.head[0] < 0 || snake.head[1] < 0){
+            return true;
+        }
+
+        for(var i = 1; snake.body.length > i; i++){
+            if ( (snake.body[i][0] == snake.head[0]) && (snake.body[i][1] == snake.head[1]) ){
+                return true;
+            }
+        }
+        return false;
+    }
+
+
+    window.onload = start;
+</script>
 </body>
 </html>
