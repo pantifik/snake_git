@@ -5,96 +5,124 @@
         <title>Змейка</title>
     </head>
     <body>
-        <canvas id="canvas"></canvas>
+        <div>
+            <canvas id="canvas"></canvas>
+        </div>
         <div>
             <p id="p">Текст</p>
             <p id="p2">Текст</p>
         </div>
         <script>
             //игровое поле
-            var canvas = document.getElementById("canvas");
-            var ctx = canvas.getContext("2d");
-            canvas.width = 402;
-            canvas.height = 402;
-            ctx.strokeRect(1, 1, 400, 400);
+
+            document.addEventListener("DOMContentLoaded",findVariables);
+            //window.onload = start;
+
+            function findVariables(){
+                var canvas = document.getElementById("canvas");
+                canvas.ctx = canvas.getContext("2d");
+                canvas.width = 402;
+                canvas.height = 402;
+                canvas.ctx.strokeRect(1, 1, 400, 400);
+                canvas.cleaner = function(){
+                                canvas.ctx.clearRect(0, 0, canvas.width, canvas.height);
+                                };
 
 
-            //змейка
-            var snake = {};
-            var rabbit = {};
+                //змейка
+                canvas.snake = {
+                    body : [
+                            [50,280],
+                            [50,290],
+                            [50,300]
+                            ]
+                };
+
+                canvas.rabbit = {};
+
+                start();
+            }
 
             //начальное положение
             function start(){
-                snake.direction = '';
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                ctx.strokeRect(1, 1, 400, 400);
-                snake.body = [
-                    [50,280],
-                    [50,290],
-                    [50,300]
-                ];
-                drowShape(snake);
+                var canvas = document.getElementById("canvas");
+
+                canvas.snake.direction = '';
+                canvas.cleaner();
+                canvas.ctx.strokeRect(1, 1, 400, 400);
+                drowShape(canvas.snake);
                 respRabbit();
             }
 
 
             //отрисовка
             function drowShape(shape){
-                ctx.fillStyle = "green";
+                var canvas = document.getElementById("canvas");
+                canvas.fillStyle = "green";
                 for(var i = 0; shape.body.length > i; i++){
-                    ctx.fillRect(shape.body[i][0], shape.body[i][1], 9, 9 );
+                    canvas.ctx.fillRect(shape.body[i][0], shape.body[i][1], 9, 9 );
                 }
             }
 
             //движение
             document.body.onkeydown = function (evt){
-                if(evt.keyCode != snake.direction){
-                    snake.direction = evt.keyCode;
+                var canvas = document.getElementById("canvas");
+                if(evt.keyCode != canvas.snake.direction){
+                    canvas.snake.direction = evt.keyCode;
                     moveSnake();
                 }
             };
 
             function moveSnake(evt){
 
-                switch (snake.direction){
-                    case 38 :
-                        snake.head = [snake.body[0][0],
-                                    snake.body[0][1] - 10];
+                var canvas = document.getElementById("canvas");
+
+                var body = canvas.snake.body;
+
+                var moveUp = 38;
+                var moveDown = 40;
+                var moveLeft = 37;
+                var moveRight = 39;
+
+                switch (canvas.snake.direction){
+                    case moveUp :
+                        canvas.snake.head = [body[0][0],
+                                    body[0][1] - 10];
                         break;
-                    case 40 :
-                        snake.head = [snake.body[0][0],
-                                    snake.body[0][1] + 10];
+                    case moveDown :
+                        canvas.snake.head = [body[0][0],
+                                    body[0][1] + 10];
                         break;
-                    case 37 :
-                        snake.head = [snake.body[0][0] - 10,
-                            snake.body[0][1]];
+                    case moveLeft :
+                        canvas.snake.head = [body[0][0] - 10,
+                            body[0][1]];
                         break;
-                    case 39 :
-                        snake.head = [snake.body[0][0] + 10,
-                            snake.body[0][1]];
+                    case moveRight :
+                        canvas.snake.head = [body[0][0] + 10,
+                            body[0][1]];
                         break;
                     default :
-                        snake.head = [snake.body[0][0],
-                                    snake.body[0][1] - 10];
+                        canvas.snake.head = [body[0][0],
+                                    body[0][1] - 10];
                 }
 
-                if (!snake.timer)
-                    snake.timer = setInterval("moveSnake()", 100);
+                if (!canvas.snake.timer)
+                    canvas.snake.timer = setInterval("moveSnake()", 100);
 
-                if (snake.head)
-                    snake.body.unshift(snake.head);
+                if (canvas.snake.head)
+                    body.unshift(canvas.snake.head);
 
-                var last = snake.body.pop();
-                ctx.clearRect(last[0], last[1], 9, 9);
-                drowShape(snake);
+                var last = body.pop();
+                canvas.ctx.clearRect(last[0], last[1], 9, 9);
+                drowShape(canvas.snake);
 
                 if (eatSelf()){
-                    clearInterval(snake.timer);
-                    snake.timer = null;
+                    clearInterval(canvas.snake.timer);
+                    canvas.snake.timer = null;
                     setTimeout('start()', 300);
                 }
 
-                if ( (snake.head[0] == rabbit.body[0]) && (snake.head[1] == rabbit.body[1]) ){
+                if ( (canvas.snake.head[0] == canvas.rabbit.body[0]) && (canvas.snake.head[1] == canvas.rabbit.body[1]) ){
                     eatRabbit();
                 }
             }
@@ -102,33 +130,35 @@
             //заяц
 
             function respRabbit(){
+                var canvas = document.getElementById("canvas");
                 var rabbitX = (Math.round(Math.random()*29 + 10))*10;
                 var rabbitY = (Math.round(Math.random()*29 + 10))*10;
-                rabbit.body = [rabbitX, rabbitY];
-                ctx.fillRect(rabbit.body[0], rabbit.body[1], 9, 9 );
+                canvas.rabbit.body = [rabbitX, rabbitY];
+                canvas.ctx.fillRect(canvas.rabbit.body[0], canvas.rabbit.body[1], 9, 9 );
             }
 
             //поедание зайца
 
             function eatRabbit(){
-                snake.body.push(rabbit.body);
+                var canvas = document.getElementById("canvas");
+                canvas.snake.body.push(canvas.rabbit.body);
                 respRabbit();
             }
 
             function eatSelf(){
-                if (snake.head[0] > 390 || snake.head[1] > 390 || snake.head[0] < 0 || snake.head[1] < 0){
+                var canvas = document.getElementById("canvas");
+                if (canvas.snake.head[0] > 390 || canvas.snake.head[1] > 390 || canvas.snake.head[0] < 0 || canvas.snake.head[1] < 0){
                     return true;
                 }
 
-                for(var i = 1; snake.body.length > i; i++){
-                    if ( (snake.body[i][0] == snake.head[0]) && (snake.body[i][1] == snake.head[1]) ){
+                for(var i = 1; canvas.snake.body.length > i; i++){
+                    if ( (canvas.snake.body[i][0] == canvas.snake.head[0]) && (canvas.snake.body[i][1] == canvas.snake.head[1]) ){
                         return true;
                     }
                 }
                 return false;
             }
 
-            window.onload = start;
         </script>
     </body>
 </html>
